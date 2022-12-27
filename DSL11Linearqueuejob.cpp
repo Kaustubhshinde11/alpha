@@ -22,7 +22,7 @@ class Queue{
     {
         if(rear == size)
         {
-            cout << "Queue is empty";
+            cout << "Queue is full";
         }
         else
         {
