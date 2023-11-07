@@ -1,0 +1,91 @@
+-- Create the 'Employee' table
+CREATE TABLE Employee (
+emp_no INT PRIMARY KEY,
+name VARCHAR(50),
+skill VARCHAR(50),
+pay_rate DECIMAL(10, 2)
+);
+-- Create the 'Position' table
+CREATE TABLE Position (
+posting_no INT PRIMARY KEY,
+skill VARCHAR(50)
+);
+-- Create the 'Duty_allocation' table
+CREATE TABLE Duty_allocation (
+posting_no INT,
+emp_no INT,
+day DATE,
+shift VARCHAR(10),
+FOREIGN KEY (posting_no) REFERENCES Position(posting_no),
+FOREIGN KEY (emp_no) REFERENCES Employee(emp_no)
+);
+-- Insert values into the tables (sample data)
+INSERT INTO Employee (emp_no, name, skill, pay_rate)
+VALUES
+(123461, 'John', 'Chef', 20.00),
+(123462, 'Alice', 'Waiter', 15.00),
+(123463, 'Bob', 'Chef', 18.00),
+(123464, 'Eve', 'Waiter', 14.00),
+(123465, 'Mike', 'Chef', 19.00);
+INSERT INTO Position (posting_no, skill)
+VALUES
+(1, 'Chef'),
+(2, 'Waiter'),
+(3, 'Manager');
+INSERT INTO Duty_allocation (posting_no, emp_no, day, shift)
+VALUES
+(1, 123461, '1986-04-01', 'Morning'),
+(2, 123462, '1986-04-01', 'Evening'),
+(1, 123461, '1986-04-02', 'Evening'),
+(1, 123463, '1986-04-01', 'Morning'),
+(2, 123464, '1986-04-02', 'Evening'),
+(2, 123465, '1986-04-01', 'Morning');
+-- Query 1: Get the duty allocation details for emp_no 123461 for the month of April 1986.
+SELECT *
+FROM Duty_allocation
+WHERE emp_no = 123461
+AND EXTRACT(MONTH FROM day) = 4
+AND EXTRACT(YEAR FROM day) = 1986;
+-- Query 2: Find the shift details for Employee 'xyz' (Replace 'xyz' with the employee's name or
+emp_no).
+SELECT emp_no, day, shift
+FROM Duty_allocation
+WHERE emp_no = (SELECT emp_no FROM Employee WHERE name = 'xyz');
+-- Query 3: Get employees whose rate of pay is more than or equal to the rate of pay of employee
+'xyz'.
+SELECT name, pay_rate
+FROM Employee
+WHERE pay_rate >= (SELECT pay_rate FROM Employee WHERE name = 'xyz');
+-- Query 4: Get the names and pay rates of employees with emp_no less than 123460 whose rate of
+pay is more than the rate of pay of at least one employee with emp_no greater than or equal to
+123460.
+SELECT name, pay_rate
+FROM Employee
+WHERE emp_no < 123460
+AND pay_rate > ANY (SELECT pay_rate FROM Employee WHERE emp_no >= 123460);
+-- Query 5: Find the names of employees who are assigned to all positions that require a Chef’s skill.
+SELECT e.name
+FROM Employee e
+WHERE 'Chef' = ALL (SELECT skill FROM Position p WHERE p.skill = 'Chef');
+-- Query 6: Find the employees with the lowest pay rate.
+SELECT name, pay_rate
+FROM Employee
+WHERE pay_rate = (SELECT MIN(pay_rate) FROM Employee);
+-- Query 7: Get the employee numbers of all employees working on at least two dates.
+SELECT emp_no
+FROM Duty_allocation
+GROUP BY emp_no
+HAVING COUNT(DISTINCT day) >= 2;
+-- Query 8: Get a list of names of employees with the skill of Chef who are assigned a duty.
+SELECT DISTINCT e.name
+FROM Employee e
+JOIN Duty_allocation d ON e.emp_no = d.emp_no
+WHERE e.skill = 'Chef';
+-- Query 9: Get a list of employees not assigned a duty.
+SELECT e.name
+FROM Employee e
+WHERE e.emp_no NOT IN (SELECT emp_no FROM Duty_allocation);
+-- Query 10: Get a count of different employees on each shift.
+SELECT shift, COUNT(DISTINCT emp_no) AS employee_count
+FROM Duty_allocation
+GROUP BY shift;
