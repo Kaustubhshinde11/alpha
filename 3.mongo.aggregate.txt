@@ -1,0 +1,85 @@
+> use StudentInfoDB
+switched to db StudentInfoDB
+> db.Student.find()
+{ "_id" : 1, "name" : "Aishu ", "Marks" : 90 }
+{ "_id" : 3, "name" : "Snehal", "Marks" : 93 }
+{ "_id" : 4, "name" : "Pritam", "Marks" : 80 }
+{ "_id" : 2, "name" : "Priya ", "Marks" : 68 }
+Matching Documents ($match):
+> db.Student.aggregate([
+... {
+... $match: { Marks: { $gte: 90 } }
+... }
+... ])
+{ "_id" : 1, "name" : "Aishu ", "Marks" : 90 }
+{ "_id" : 3, "name" : "Snehal", "Marks" : 93 }
+Grouping Documents ($group):
+> db.Student.aggregate([
+... {
+... $group: {
+... _id: null,
+... totalMarks: { $sum: "$Marks" },
+... avgMarks: { $avg: "$Marks" },
+... minMarks: { $min: "$Marks" },
+... maxMarks: { $max: "$Marks" }
+... }
+... }
+... ])
+{ "_id" : null, "totalMarks" : 331, "avgMarks" : 82.75, "minMarks" : 68, "maxMarks" : 93 }
+Counting the Number of Documents in a Group:
+> db.Student.aggregate([
+... {
+... $group: {
+... _id: "$name",
+... count: { $sum: 1 }
+... }
+... }
+... ])
+{ "_id" : "Pritam", "count" : 1 }
+{ "_id" : "Priya ", "count" : 1 }
+{ "_id" : "Snehal", "count" : 1 }
+{ "_id" : "Aishu ", "count" : 1 }
+Sorting the Results ($sort):
+> db.Student.aggregate([
+... {
+... $sort: { Marks: -1 }
+... }
+... ])
+{ "_id" : 3, "name" : "Snehal", "Marks" : 93 }
+{ "_id" : 1, "name" : "Aishu ", "Marks" : 90 }
+{ "_id" : 4, "name" : "Pritam", "Marks" : 80 }
+{ "_id" : 2, "name" : "Priya ", "Marks" : 68 }
+Limiting the Number of Results ($limit):
+> db.Student.aggregate([
+... {
+... $limit: 3
+... }
+... ])
+{ "_id" : 1, "name" : "Aishu ", "Marks" : 90 }
+{ "_id" : 3, "name" : "Snehal", "Marks" : 93 }
+{ "_id" : 4, "name" : "Pritam", "Marks" : 80 }
+$first and $last Operators:
+> db.Student.aggregate([
+... {
+... $sort: { Marks: 1 } // Sort by marks in ascending order
+... },
+... {
+... $group: {
+... _id: null,
+... highestMarksStudent: { $last: "$name" },
+... highestMarks: { $last: "$Marks" },
+... lowestMarksStudent: { $first: "$name" },
+... lowestMarks: { $first: "$Marks" }
+... }
+... }
+... ])
+{ "_id" : null, "highestMarksStudent" : "Snehal", "highestMarks" : 93, "lowestMarksStudent" : "Priya ", 
+"lowestMarks" : 68 }
+$skip:
+> db.Student.aggregate([
+... {
+... $skip: 2
+... }
+... ])
+{ "_id" : 4, "name" : "Pritam", "Marks" : 80 }
+{ "_id" : 2, "name" : "Priya ", "Marks" : 68 }

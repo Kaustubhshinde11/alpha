@@ -1,0 +1,6 @@
+show dbs
+use blogDB 
+show Collection
+show collections
+db.login.find()
+db.logins.find()
