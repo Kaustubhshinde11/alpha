@@ -1,0 +1,74 @@
+-- Create Project table
+CREATE TABLE Project (
+project_id INT PRIMARY KEY,
+proj_name VARCHAR(100),
+chief_arch INT,
+FOREIGN KEY (chief_arch) REFERENCES Employee(Emp_id)
+);
+-- Create Employee table
+CREATE TABLE Employee (
+Emp_id INT PRIMARY KEY,
+Emp_name VARCHAR(100)
+);
+-- Create Assigned_To table (junction table to represent many-to-many relationship)
+CREATE TABLE Assigned_To (
+Project_id INT,
+Emp_id INT,
+FOREIGN KEY (Project_id) REFERENCES Project(project_id),
+FOREIGN KEY (Emp_id) REFERENCES Employee(Emp_id),
+PRIMARY KEY (Project_id, Emp_id)
+);
+-- Insert sample values into Project table
+INSERT INTO Project (project_id, proj_name, chief_arch) VALUES
+(1, 'C353', 3),
+(2, 'C354', 2),
+(3, 'Database', 1),
+(4, 'C453', 4);
+-- Insert sample values into Employee table
+INSERT INTO Employee (Emp_id, Emp_name) VALUES
+(1, 'John Doe'),
+(2, 'Jane Smith'),
+(3, 'Alex Johnson'),
+(4, 'Emily Brown');
+-- Insert sample values into Assigned_To table
+INSERT INTO Assigned_To (Project_id, Emp_id) VALUES
+(1, 1),
+(1, 2),
+(1, 3),
+(2, 2),
+(2, 3),
+(3, 1),
+(3, 4),
+(4, 1),
+(4, 2);
+SELECT Employee.*
+FROM Employee
+JOIN Assigned_To ON Employee.Emp_id = Assigned_To.Emp_id
+JOIN Project ON Assigned_To.Project_id = Project.project_id
+WHERE Project.proj_name = 'C353';
+SELECT Employee.Emp_id
+FROM Employee
+JOIN Assigned_To ON Employee.Emp_id = Assigned_To.Emp_id
+JOIN Project ON Assigned_To.Project_id = Project.project_id
+WHERE Project.proj_name = 'C353';
+SELECT Employee.*
+FROM Employee
+JOIN Assigned_To ON Employee.Emp_id = Assigned_To.Emp_id
+JOIN Project ON Assigned_To.Project_id = Project.project_id
+WHERE Project.proj_name = 'Database';
+SELECT Employee.*
+FROM Employee
+JOIN Assigned_To ON Employee.Emp_id = Assigned_To.Emp_id
+JOIN Project ON Assigned_To.Project_id = Project.project_id
+WHERE Project.proj_name IN ('C353', 'C354')
+GROUP BY Employee.Emp_id
+HAVING COUNT(DISTINCT Project.proj_name) = 2;
+SELECT Employee.Emp_id
+FROM Employee
+WHERE Employee.Emp_id NOT IN (
+SELECT Employee.Emp_id
+FROM Employee
+JOIN Assigned_To ON Employee.Emp_id = Assigned_To.Emp_id
+JOIN Project ON Assigned_To.Project_id = Project.project_id
+WHERE Project.proj_name = 'C453'
+);
