@@ -1,0 +1,44 @@
+b)Write a PL/SQL block of code using parameterized Cursor, that will merge the data available
+in the newly created table N_RollCall with the data available in the table O_RollCall. If the data
+in the first table already exist in the second table then that data should be skipped. output:
+DECLARE
+CURSOR n_rollcall_cursor IS
+SELECT *
+FROM N_RollCall;
+v_n_rollcall_row N_RollCall%ROWTYPE;
+BEGIN
+FOR v_n_rollcall_row IN n_rollcall_cursor LOOP
+-- Check if the data from the first table exists in the second table
+-- You may need to adjust the condition based on your table structure
+-- This example assumes a unique identifier 'id' for each row
+IF NOT EXISTS (SELECT 1 FROM O_RollCall WHERE id = v_n_rollcall_row.id) THEN
+-- Insert the data from the first table into the second table
+INSERT INTO O_RollCall
+VALUES v_n_rollcall_row;
+END IF;
+END LOOP;
+DBMS_OUTPUT.PUT_LINE('Data merged successfully.');
+END;
+c)Write the PL/SQL block for following requirements using parameterized Cursor: Consider
+table EMP(e_no, d_no, Salary), department wise average salary should be inserted into new
+table dept_salary(d_no, Avg_salary
+DECLARE
+CURSOR dept_cursor IS
+SELECT DISTINCT d_no
+FROM EMP;
+v_d_no EMP.d_no%TYPE;
+v_avg_salary NUMBER;
+BEGIN
+FOR dept_rec IN dept_cursor LOOP
+v_d_no := dept_rec.d_no;
+-- Calculate the average salary for the department
+SELECT AVG(Salary)
+INTO v_avg_salary
+FROM EMP
+WHERE d_no = v_d_no;
+-- Insert the department and average salary into the dept_salary table
+INSERT INTO dept_salary (d_no, Avg_salary)
+VALUES (v_d_no, v_avg_salary);
+END FOR;
+DBMS_OUTPUT.PUT_LINE('Average salaries inserted into dept_salary table.');
+END;
