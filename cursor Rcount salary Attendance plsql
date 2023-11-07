@@ -1,0 +1,78 @@
+a) The bank manager has decided to activate all those accounts which were previously
+marked as inactive for performing no transaction in last 365 days. Write a PL/SQ block
+(using implicit cursor) to update the status of account, display an approximate message
+based on the no. of rows affected by the update. (Use of %FOUND, %NOTFOUND,
+%ROWCOUNT)
+DECLARE
+v_inactive_count NUMBER := 0;
+BEGIN
+-- Update the status of inactive accounts to 'Active'
+UPDATE account_table
+SET status = 'Active'
+WHERE last_transaction_date <= SYSDATE - 365;
+-- Check the number of rows affected by the update
+v_inactive_count := SQL%ROWCOUNT;
+IF v_inactive_count > 0 THEN
+DBMS_OUTPUT.PUT_LINE('Updated ' || v_inactive_count || ' accounts from inactive to
+active.');
+ELSE
+DBMS_OUTPUT.PUT_LINE('No accounts were updated.');
+END IF;
+END;
+b)Organization has decided to increase the salary of employees by 10% of existing salary, who are
+having salary less than average salary of organization, Whenever such salary updates takes place, a
+record for the same is maintained in the increment_salary table.
+DECLARE
+v_avg_salary NUMBER;
+v_employee_count NUMBER := 0;
+CURSOR emp_cursor IS
+SELECT employee_id, salary
+FROM employee_table
+WHERE salary < (SELECT AVG(salary) FROM employee_table);
+BEGIN
+-- Calculate the average salary of the organization
+SELECT AVG(salary) INTO v_avg_salary
+FROM employee_table;
+FOR emp_record IN emp_cursor LOOP
+-- Increase salary by 10%
+UPDATE employee_table
+SET salary = salary * 1.10
+WHERE employee_id = emp_record.employee_id;
+-- Insert a record into the increment_salary table
+INSERT INTO increment_salary (employee_id, new_salary)
+VALUES (emp_record.employee_id, emp_record.salary * 1.10);
+v_employee_count := v_employee_count + 1;
+END FOR;
+IF v_employee_count > 0 THEN
+DBMS_OUTPUT.PUT_LINE('Increased salary for ' || v_employee_count || ' employees.');
+ELSE
+DBMS_OUTPUT.PUT_LINE('No salary updates were performed.');
+END IF;
+END;
+b) Write PL/SQL block using explicit cursor for following requirements: College has decided to
+mark all those students detained (D) who are having attendance less than 75%. Whenever
+such update takes place, a record for the same is maintained in the D_Stud table. create
+table stud21(roll number(4), att number(4), status varchar(1))
+DECLARE
+v_student_count NUMBER := 0;
+CURSOR student_cursor IS
+SELECT roll, att
+FROM stud21
+WHERE att < 75;
+BEGIN
+FOR student_record IN student_cursor LOOP
+-- Mark the student as detained (D)
+UPDATE stud21
+SET status = 'D'
+WHERE roll = student_record.roll;
+-- Insert a record into the D_Stud table
+INSERT INTO D_Stud (roll, att_date)
+VALUES (student_record.roll, SYSDATE);
+v_student_count := v_student_count + 1;
+END FOR;
+IF v_student_count > 0 THEN
+DBMS_OUTPUT.PUT_LINE('Marked ' || v_student_count || ' students as detained.');
+ELSE
+DBMS_OUTPUT.PUT_LINE('No students were marked as detained.');
+END IF;
+END;
