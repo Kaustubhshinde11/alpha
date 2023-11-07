@@ -1,0 +1,82 @@
+Here's an SQL code block that raises a user-defined exception when a business rule is
+violated in the client_master table:
+DECLARE
+v_bal_due NUMBER;
+-- Define a user-defined exception
+balance_due_violation EXCEPTION;
+-- Handler for the user-defined exception
+PRAGMA EXCEPTION_INIT(balance_due_violation, -20001);
+BEGIN
+-- Accept the roll number and name of book from the user
+-- (You can use input parameters or substitution variables)
+-- Let's assume the variables :roll_number and :book_name
+-- Query the client_master table to get the bal_due value
+SELECT bal_due INTO v_bal_due
+FROM client_master
+WHERE roll_no = :roll_number;
+-- Check if the bal_due is less than 0
+IF v_bal_due < 0 THEN
+RAISE_APPLICATION_ERROR(-20001, 'Balance due is less than 0. Cannot proceed.');
+ELSE
+-- Perform the desired action if the business rule is not violated
+-- (e.g., update the client_master table)
+END IF;
+EXCEPTION
+WHEN balance_due_violation THEN
+DBMS_OUTPUT.PUT_LINE('Business rule violation: ' || SQLERRM);
+WHEN NO_DATA_FOUND THEN
+DBMS_OUTPUT.PUT_LINE('Client not found.');
+WHEN OTHERS THEN
+DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);
+END;
+b) Here's an SQL code block that handles book returns and calculates fines based on
+the number of days late:
+DECLARE
+v_roll_no NUMBER;
+v_book_name VARCHAR2(100);
+v_date_of_issue DATE;
+v_status CHAR(1);
+v_return_date DATE := SYSDATE; -- Assuming the return date is the current
+date
+v_days_late NUMBER;
+v_fine_amt NUMBER;
+-- Define user-defined exceptions
+late_return_exception EXCEPTION;
+-- Handler for the user-defined exception
+PRAGMA EXCEPTION_INIT(late_return_exception, -20002);
+BEGIN
+-- Accept roll number and name of the book from the user
+-- (You can use input parameters or substitution variables)
+-- Let's assume the variables :roll_number and :book_name
+-- Query the Borrow table to get details
+SELECT Roll_no, DateofIssue, Status
+INTO v_roll_no, v_date_of_issue, v_status
+FROM Borrow
+WHERE Roll_no = :roll_number AND NameofBook = :book_name;
+-- Calculate the number of days late
+v_days_late := v_return_date - v_date_of_issue;
+-- Check the number of days late and calculate the fine
+IF v_days_late BETWEEN 15 AND 30 THEN
+v_fine_amt := v_days_late * 5;
+ELSIF v_days_late > 30 THEN
+v_fine_amt := v_days_late * 50;
+ELSE
+v_fine_amt := 0;
+END IF;
+-- Update the Status to 'R' for returned
+UPDATE Borrow
+SET Status = 'R'
+WHERE Roll_no = v_roll_no AND NameofBook = :book_name;
+-- If the fine amount is greater than 0, store the details in the Fine table
+IF v_fine_amt > 0 THEN
+INSERT INTO Fine (Roll_no, Date, Amt)
+VALUES (v_roll_no, v_return_date, v_fine_amt);
+END IF;
+EXCEPTION
+WHEN late_return_exception THEN
+DBMS_OUTPUT.PUT_LINE('Late return! Fine: ' || v_fine_amt);
+WHEN NO_DATA_FOUND THEN
+DBMS_OUTPUT.PUT_LINE('Book or client not found.');
+WHEN OTHERS THEN
+DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);
+END;
