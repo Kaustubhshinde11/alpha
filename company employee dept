@@ -1,0 +1,65 @@
+-- Create the 'Dept' table
+CREATE TABLE Dept (
+deptno INT PRIMARY KEY,
+deptname VARCHAR(50),
+location VARCHAR(50)
+);
+-- Create the 'Emp' table
+CREATE TABLE Emp (
+eno INT PRIMARY KEY,
+ename VARCHAR(50),
+job VARCHAR(50),
+hiredate DATE,
+salary DECIMAL(10, 2),
+commission DECIMAL(10, 2),
+deptno INT,
+FOREIGN KEY (deptno) REFERENCES Dept(deptno)
+);
+-- Insert values into the 'Dept' table
+INSERT INTO Dept (deptno, deptname, location)
+VALUES
+(10, 'HR', 'New York'),
+(20, 'IT', 'San Francisco'),
+(30, 'Finance', 'Los Angeles');
+-- Insert values into the 'Emp' table
+INSERT INTO Emp (eno, ename, job, hiredate, salary, commission, deptno)
+VALUES
+(1, 'John', 'Manager', '1980-12-17', 5000.00, NULL, 10),
+(2, 'Alice', 'Analyst', '1981-02-20', 3000.00, NULL, 20),
+(3, 'Bob', 'Clerk', '1982-04-10', 2000.00, NULL, 30),
+(4, 'Sara', 'Manager', '1979-11-15', 5500.00, NULL, 10),
+(5, 'Mike', 'Salesman', '1983-06-22', 4500.00, 1000.00, 20);
+SELECT MAX(salary) AS max_salary
+FROM emp
+WHERE job = 'SALESMAN';
+SELECT ename
+FROM emp
+WHERE ename LIKE 'I%';
+SELECT *
+FROM emp
+WHERE hiredate < TO_DATE('1981-09-30', 'YYYY-MM-DD');
+SELECT *
+FROM emp
+ORDER BY salary DESC;
+SELECT deptno, COUNT(*) AS num_employees, AVG(salary) AS avg_salary
+FROM emp
+WHERE deptno = 20
+GROUP BY deptno;
+SELECT hiredate, AVG(salary) AS avg_salary, MIN(salary) AS min_salary
+FROM emp
+WHERE deptno = 10
+GROUP BY hiredate
+ORDER BY hiredate;
+SELECT e.ename, d.deptname
+FROM emp e
+JOIN dept d ON e.deptno = d.deptno;
+SELECT d.deptname, SUM(e.salary) AS total_salary
+FROM emp e
+JOIN dept d ON e.deptno = d.deptno
+GROUP BY d.deptname;
+SELECT *
+FROM emp
+WHERE deptno = (SELECT deptno FROM dept WHERE deptname = 'Dev');
+UPDATE emp
+SET salary = salary * 1.05
+WHERE deptno = 10;
