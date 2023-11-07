@@ -18,15 +18,15 @@ adate DATE,
 FOREIGN KEY (cname) REFERENCES Customers(cname),
 FOREIGN KEY (bname) REFERENCES Branch(bname)
 );
--- Create the 'Borrow' table with foreign keys (optional, if needed)
--- CREATE TABLE Borrow (
--- loanno INT PRIMARY KEY,
--- cname VARCHAR(50),
--- bname VARCHAR(50),
--- amount DECIMAL(10, 2),
--- FOREIGN KEY (cname) REFERENCES Customers(cname),
--- FOREIGN KEY (bname) REFERENCES Branch(bname)
--- );
+
+CREATE TABLE Borrow (
+ loanno INT PRIMARY KEY,
+ cname VARCHAR(50),
+ bname VARCHAR(50),
+ amount DECIMAL(10, 2),
+ FOREIGN KEY (cname) REFERENCES Customers(cname),
+ FOREIGN KEY (bname) REFERENCES Branch(bname)
+ );
 -- Insert data into the 'Branch' table
 INSERT INTO Branch (bname, city)
 VALUES
