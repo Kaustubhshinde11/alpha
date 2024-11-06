@@ -1,0 +1,48 @@
+import pandas as pd
+
+import numpy as np
+
+df = pd.read_csv("/Users/kaustubhshinde/Downloads/diabetes.csv")
+
+df
+
+df.dtypes
+
+df.dropna(axis = 0, inplace = True)
+
+x = df.drop(columns = ["Outcome"])
+
+y = df["Outcome"]
+
+from sklearn.model_selection import train_test_split
+
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.3, random_state = 42)
+
+from sklearn.neighbors import KNeighborsClassifier
+
+KNN = KNeighborsClassifier(n_neighbors = 100)
+
+KNN.fit(x_train, y_train)
+
+y_pred = KNN.predict(x_test)
+
+from sklearn.metrics import confusion_matrix,accuracy_score
+
+acc=accuracy_score ( y_pred, y_test)
+
+print (acc)
+
+cm = confusion_matrix(y_pred,y_test)
+print(cm)
+
+error_rate = 1-acc
+
+from sklearn.metrics import precision_score,recall_score
+
+prec = precision_score(y_pred,y_test)
+
+rec = recall_score(y_pred,y_test)
+
+print (prec)
+print (rec)
+

@@ -1,0 +1,55 @@
+import pandas as pd
+
+import numpy as np
+
+from matplotlib import pyplot as plt
+
+import seaborn as sns
+
+from sympy import Symbol, lambdify
+
+x = Symbol('x')
+
+from sklearn.model_selection import train_test_split
+
+
+
+def gd(function, start, learn_rate, step_size = 1, n_iters = 50, tolerance = 1e-06):
+
+    gradient = lambdify(x, function.diff(x))
+    function = lambdify(x, function)
+
+    iter = 0
+    points = [start]
+
+    while step_size > tolerance and iter <= n_iters:
+
+        prev_x = start
+        start = start - learn_rate*gradient(prev_x)
+        step_size = abs(start-prev_x)
+        iter = iter + 1
+        points.append(start)
+    print("The smallest value of x is: ", start)
+
+    x_ = np.linspace(-7, 5, 100)
+    y = function(x_)
+
+    fig = plt.figure(figsize = (10, 10))
+    ax = fig.add_subplot(1, 1, 1)
+
+    ax.spines['left'].set_position('center')
+    ax.spines['bottom'].set_position('zero')
+    ax.spines['right'].set_color('none')
+    ax.spines['top'].set_color('none')
+
+    ax.xaxis.set_ticks_position('bottom')
+    ax.yaxis.set_ticks_position('left')
+
+    plt.plot(x_, y, 'r')
+    plt.plot(points, function(np.array(points)), '-o')
+
+    plt.show()
+
+function = (x+5)**2
+gd(function=function, start = 3,  learn_rate = 0.2 )
+

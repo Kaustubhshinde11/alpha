@@ -1,0 +1,34 @@
+import pandas as pd
+
+df = pd.read_csv("/Users/kaustubhshinde/Downloads/sales_data_sample.csv",  encoding="ISO-8859-1")
+
+from sklearn.cluster import KMeans
+
+from matplotlib import pyplot as plt
+
+df
+
+df1 = df[["QUANTITYORDERED", "SALES"]]
+
+from sklearn.preprocessing import StandardScaler
+
+ss = StandardScaler()
+data = ss.fit_transform(df1)
+
+wcss = []
+for i in range(1, 11):
+    km = KMeans(n_clusters = i)
+    km.fit(data)
+    wcss.append(km.inertia_)
+    
+
+plt.plot(range(1, 11), wcss)
+plt.show()
+
+KM = KMeans(n_clusters = 3)
+
+KM.fit(data)
+
+plt.scatter(data[:, 0], data[:, 1], c=KM.labels_)
+plt.show()
+
