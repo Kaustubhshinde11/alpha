@@ -1,0 +1,103 @@
+#include <iostream>
+#include <queue>
+#include <stack>
+#include <omp.h>
+
+using namespace std;
+
+class graph
+{
+public:
+	int graphAdjacencyMatrix[20][20] = {0}; //in cpp dynamic allocation of array size is not allowed
+
+	void addEdge(int i, int j)
+	{
+		graphAdjacencyMatrix[i][j] = 1;
+		graphAdjacencyMatrix[j][i] = 1;
+	}
+
+	void parallelBFS(int startNode, int n)
+	{
+		queue<int> q;
+		bool visited[20] = {false};
+
+		q.push(startNode);
+		visited[startNode] = true;
+		cout<<startNode<<" ";
+
+		while(!q.empty())
+		{
+			int temp;
+
+			#pragma omp critical
+			{
+				temp = q.front();
+				q.pop();
+			}
+			
+			#pragma omp parallel for
+			for(int i=0; i<n; i++)
+			{	
+					if(graphAdjacencyMatrix[temp][i] == 1 && visited[i] == false)
+					{
+						#pragma omp critical
+						{
+							visited[i] = true;
+							cout<<i<<" ";
+							q.push(i);
+						}
+					}
+			}
+
+		}
+		cout<<endl;
+	}
+
+};
+
+
+int main()
+{
+	graph g;
+	
+
+
+	cout<<"Enter the number of edges in graph:";
+	int edges;
+	cin>>edges;
+
+	cout<<"Enter the edges in form of (u,v)";
+	int u,v;
+	for(int i=0; i<edges; i++)
+	{
+		cin>>u>>v;
+		g.addEdge(u,v);
+	}
+
+
+
+	cout<<"Enter the number of nodes in graph:";
+        int nodes;
+        cin>>nodes;
+
+	//printing the adjacency matrix
+	for(int i=0; i<nodes; i++)
+	{
+		for(int j=0; j<nodes; j++)
+		{
+			cout<<g.graphAdjacencyMatrix[i][j]<<" ";
+		}
+		cout<<endl;
+	}
+	cout<<endl;
+	cout<<"BFS is: ";
+
+	double BFSstart = omp_get_wtime();
+	g.parallelBFS(0,nodes);
+	double BFSend = omp_get_wtime();
+	cout<<"Time taken by parallel BFS:"<< BFSend-BFSstart<< "seconds."<<endl;
+
+	cout<<endl;
+
+return 0;
+}
